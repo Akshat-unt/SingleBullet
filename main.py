@@ -78,28 +78,27 @@ def main():
         display.blit(backgroundTex, (0,0))
         startMessage = font_32.render("CREATED BY ME", True, (48, 93, 120))
         display.blit(startMessage, (display.get_width()/2 - startMessage.get_width()/2, display.get_height()/2 - startMessage.get_height()/2))
-            
+
         # update display
         pygame.display.update()
         # wait for 10 seconds
         pygame.time.delay(10)
-    
+
     titleScreen = True
     pygame.mixer.Sound.play(launchfx)
+    # getting the keys pressed
+    clicked = False
     # title screen
     while titleScreen:
         dt = clock.tick(60) / 1000
         # get the position of the mouse
-        mouseX,mouseY = pygame.mouse.get_pos()  
-        # getting the keys pressed
-        clicked = False
+        mouseX,mouseY = pygame.mouse.get_pos()
         keys = pygame.key.get_pressed()
         # checking events
         for event in pygame.event.get():
-            if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_SPACE:
-                    titleScreen = False
-                    pygame.mixer.Sound.play(launchfx)
+            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                titleScreen = False
+                pygame.mixer.Sound.play(launchfx)
             # if the player quits
             if event.type==pygame.QUIT:
                 pygame.quit()
@@ -109,7 +108,7 @@ def main():
         display.blit(backgroundTex, (0,0))
         display.blit(polesTex, (0,0))
         display.blit(grassTex, (0,0))
-        display.blit(logoTex, (display.get_width()/2 - logoTex.get_width()/2, display.get_height()/2 - logoTex.get_height()/2 + math.sin(time.time()*5)*5 - 25)) 
+        display.blit(logoTex, (display.get_width()/2 - logoTex.get_width()/2, display.get_height()/2 - logoTex.get_height()/2 + math.sin(time.time()*5)*5 - 25))
         startMessage = font_32.render("SPACE TO START", True, (0, 0, 0))
         display.blit(startMessage, (display.get_width()/2 - startMessage.get_width()/2, 325))
 
@@ -126,12 +125,15 @@ def main():
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
-            if event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
-                if shooter.hasBullet:
-                    pygame.mixer.Sound.play(launchfx)
-                    shots += 1
-                    shooter.hasBullet = False
-                    projectiles.append(Projectile(shooter.position.x + shooter.width/2 - 29/2, shooter.position.y + 8))
+            if (
+                event.type == pygame.KEYDOWN
+                and event.key == pygame.K_SPACE
+                and shooter.hasBullet
+            ):
+                pygame.mixer.Sound.play(launchfx)
+                shots += 1
+                shooter.hasBullet = False
+                projectiles.append(Projectile(shooter.position.x + shooter.width/2 - 29/2, shooter.position.y + 8))
 
         # update
 
@@ -162,7 +164,7 @@ def main():
             pygame.mixer.Sound.play(winfx)
             currentLevel += 1
             reset(currentLevel)
-        
+
         for spark in sparks:
             spark.update(dt)
             for projectile in projectiles:
@@ -181,7 +183,7 @@ def main():
 
 
         # draw
-    
+
         display.fill(background)
         display.blit(backgroundTex, (0,0))
         display.blit(grassTex, (0,0))
@@ -209,7 +211,7 @@ def main():
         sparkSize2 = (int)(abs(math.sin(time.time()*5 + 10)*5)*5)
         newSparkTex_back = pygame.transform.scale(sparkTex_back, (sparkSize, sparkSize))
         newSparkTex_front = pygame.transform.scale(sparkTex_front, (sparkSize2, sparkSize2))
-        
+
         for spark in sparks:
             if spark.position.x > 43 and spark.position.x + spark.width < 640 - 43:
                 display.blit(newSparkTex_back, (spark.position.x - sparkSize/2 + 13.5, spark.position.y - sparkSize/2 + 13.5))
@@ -217,14 +219,14 @@ def main():
 
 
         if shooter.hasBullet:
-            display.blit(projectileTex, (shooter.position.x + shooter.width/2 - 29/2, shooter.position.y - 6)) 
+            display.blit(projectileTex, (shooter.position.x + shooter.width/2 - 29/2, shooter.position.y - 6))
         display.blit(shooterTex, (shooter.position.x, shooter.position.y))
 
-        if not (currentLevel > 9):
+        if currentLevel <= 9:
 
             display.blit(shotsTextBorder, (5, 475 - 39))
             display.blit(levelTextBorder, (640 - 144 - 5, 475 - 39))
-        
+
             levelText = font_28.render('LEVEL: ' + str(currentLevel + 1) + '/10', True, (0, 0, 0))
             display.blit(levelText, (640 - 144 + 5, 475 - 39 + 4))
 
